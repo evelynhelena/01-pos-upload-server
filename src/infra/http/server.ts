@@ -10,7 +10,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { env } from '@/env';
 import { uploadImageRoute } from './routes/upload-image';
-import { trasformSwaggerSchema } from './trasform-swagger-schema';
+import { transformSwaggerSchema } from './trasform-swagger-schema';
 
 const server = fastify();
 
@@ -41,7 +41,7 @@ server.register(fastifySwagger, {
       version: '1.0.0',
     },
   },
-  transform: trasformSwaggerSchema,
+  transform: transformSwaggerSchema,
 });
 
 server.register(fastifySwaggerUi, {
