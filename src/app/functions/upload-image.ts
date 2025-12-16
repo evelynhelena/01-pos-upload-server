@@ -3,6 +3,7 @@ import { Readable } from 'node:stream';
 import z from 'zod';
 import { db } from '@/infra/db';
 import { schema } from '@/infra/db/schemas';
+import { uploadFileToStorage } from '@/infra/storage/upload-file-to-storage';
 import { Either, makeLeft, makeRight } from '@/shared/either';
 import { InvalidFileFormat } from './errors/invalid-file-format';
 
@@ -28,11 +29,18 @@ export async function uploadImage(
 
   // TODO: carregar a imagem p/ cloudFare R2
 
-  await db.insert(schema.uploads).values({
-    name: fileName,
-    remoteKey: randomUUID(),
-    remoteUrl: contentType,
+  const { key, url } = await uploadFileToStorage({
+    fileName,
+    contentType,
+    contentStream,
+    folder: 'images',
   });
 
-  return makeRight({ url: '' });
+  await db.insert(schema.uploads).values({
+    name: fileName,
+    remoteKey: key,
+    remoteUrl: url,
+  });
+
+  return makeRight({ url: url });
 }
