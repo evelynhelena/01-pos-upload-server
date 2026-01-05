@@ -4,7 +4,7 @@ import { db } from '@/infra/db';
 import { schema } from '@/infra/db/schemas';
 import { uploadFileToStorage } from '@/infra/storage/upload-file-to-storage';
 import { type Either, makeLeft, makeRight } from '@/shared/either';
-import { InvalidFileFormat } from './errors/invalid-file-format';
+import { InvalidFileFormat } from '../errors/invalid-file-format';
 
 const uploadImageInpyt = z.object({
   fileName: z.string(),

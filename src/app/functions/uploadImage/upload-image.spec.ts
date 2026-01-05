@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { db } from '@/infra/db';
 import { schema } from '@/infra/db/schemas';
 import { isLeft, isRight, unwrapEither } from '@/shared/either';
-import { InvalidFileFormat } from './errors/invalid-file-format';
+import { InvalidFileFormat } from '../errors/invalid-file-format';
 import { uploadImage } from './upload-image';
 
 describe('upload image', () => {
