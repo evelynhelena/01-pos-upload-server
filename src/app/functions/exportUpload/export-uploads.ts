@@ -1,7 +1,11 @@
-import { ilike } from 'drizzle-orm';
-import { z } from 'zod';
+import { PassThrough, Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { stringify } from 'csv-stringify';
+import { ilike, StringChunk } from 'drizzle-orm';
+import { transform, z } from 'zod';
 import { db, pg } from '@/infra/db';
 import { schema } from '@/infra/db/schemas';
+import { uploadFileToStorage } from '@/infra/storage/upload-file-to-storage';
 import { type Either, makeRight } from '@/shared/either';
 
 const exportUploadsInput = z.object({
@@ -34,11 +38,43 @@ export async function exportUploads(
 
   const cursor = pg.unsafe(sql, params as string[]).cursor(2); //faz com que consumimos 50 dados por vez, fazendo com que não sobrecarregue a aplicação
 
-  const csv = '';
+  const csv = stringify({
+    delimiter: ',',
+    header: true,
+    columns: [
+      { key: 'id', header: 'ID' },
+      { key: 'name', header: 'Name' },
+      { key: 'remote_url', header: 'URL' },
+      { key: 'created_at', header: 'Uploaded at' },
+    ],
+  });
 
-  for await (const rows of cursor) {
-    console.log(rows);
-  }
+  const uploadToStorageStrem = new PassThrough();
 
-  return makeRight({ reportUrl: '' });
+  const convertToCSVPipeline = pipeline(
+    cursor,
+    new Transform({
+      objectMode: true,
+      transform(chunks: unknown[], encoding, callback) {
+        for (const chunk of chunks) {
+          this.push(chunk);
+        }
+
+        callback();
+      },
+    }),
+    csv,
+    uploadToStorageStrem
+  );
+
+  const uploadToStorage = uploadFileToStorage({
+    contentType: 'text/csv',
+    folder: 'downloads',
+    fileName: `${new Date().toISOString()}-uploads.csv`,
+    contentStream: uploadToStorageStrem,
+  });
+
+  const [{ url }] = await Promise.all([uploadToStorage, convertToCSVPipeline]);
+
+  return makeRight({ reportUrl: url });
 }

@@ -9,6 +9,7 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod';
 import { env } from '@/env';
+import { exportUploadsRoute } from './routes/export-uploads';
 import { getUploadsRoute } from './routes/get-uploads';
 import { uploadImageRoute } from './routes/upload-image';
 import { transformSwaggerSchema } from './trasform-swagger-schema';
@@ -27,8 +28,6 @@ server.setErrorHandler((error, request, reply) => {
   }
 
   //envia o erro para alguma ferramente de observabilidade (sentry/datadog/grafana etc)
-
-  console.log(error);
 
   return reply.status(500).send({ message: 'Internal server error.' });
 });
@@ -51,6 +50,7 @@ server.register(fastifySwaggerUi, {
 
 server.register(uploadImageRoute);
 server.register(getUploadsRoute);
+server.register(exportUploadsRoute);
 
 console.log(env.DATABASE_URL);
 
