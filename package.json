@@ -13,7 +13,10 @@
     "db:migrate:test": "dotenv -e .env.test -- drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "pretest": "pnpm run db:migrate:test",
-    "pretest:watch": "pnpm run db:migrate:test"
+    "pretest:watch": "pnpm run db:migrate:test",
+    "build": "tsup-node",
+    "pr:create" : "gh pr create",
+    "pr:view" : "gh pr view -w"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +43,7 @@
     "@types/node": "^24.10.1",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.7",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^5.1.4",
